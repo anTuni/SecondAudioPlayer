@@ -15,7 +15,8 @@ import {
   View,
   TouchableHighlight,
   Pressable,
-  Image
+  Image,
+  Button
 } from 'react-native';
 import TrackPlayer,
 {
@@ -215,6 +216,7 @@ class App extends React.Component {
           style={{flex:1}}>
           <PlayerInfo />
           <PlayerControlBox />
+          <Button title="toWebeiw" onPress={() => {this.props.navigation.navigate('Webview')}}></Button>
         </ScrollView>
       </SafeAreaView>
     );
