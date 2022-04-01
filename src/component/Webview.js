@@ -24,16 +24,6 @@ const tracks = [
     artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
     duration: 52 // Duration in seconds
 },
-{
-    url: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', // Load media from the network
-    title: 'Second',
-    artist: 'Secondary',
-    album: 'Secondwhile(1<2)',
-    genre: 'Second House, Second House',
-    date: '2022-01-10T01:00:00+00:00', // RFC 3339
-    artwork: 'https://www.pngall.com/wp-content/uploads/8/Sample.png', // Load artwork from the network
-    duration: 19 // Duration in seconds
-},
 ]
 const stateText = (playerState)=>{
     var text
@@ -106,8 +96,9 @@ class Webview extends React.Component {
         super(props);
     }
     messageHandler = async(msg)=>{
-        console.log('messageHandler::msg ',msg)
-        switch (msg.nativeEvent.data) {
+        console.log('messageHandler::msg ',msg.nativeEvent.data)
+        var message = JSON.parse(msg.nativeEvent.data)
+        switch (message.message) {
             case 'skipToPrev':
                 await TrackPlayer.skipToPrevious()
                 break;
@@ -122,6 +113,9 @@ class Webview extends React.Component {
                 break;
             case 'skipToNext':
                 await TrackPlayer.skipToNext()
+                break;
+            case 'addTrack':
+                this.addTrack(message.data)
                 break;
         
             default:
@@ -138,6 +132,9 @@ class Webview extends React.Component {
         if(this.webref){
             this.webref.injectJavaScript(run);
         }
+    }
+    addTrack = async(track)=>{
+        await TrackPlayer.add(track)
     }
     trackPlayerInit = async() =>{
         await TrackPlayer.setupPlayer({})
