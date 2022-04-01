@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioView</title>
+</head>
+<body>
+    <h1>하이</h1>
+    <div id="progress"></div>
+    <div>
+        <button type="button" onclick="addTrack(0)">1번트랙추가</button>
+    </div>
+    <div>
+        <button type="button" onclick="addTrack(1)">2번트랙추가</button>
+    </div>
+    <button type="button" onclick="postMessage('버튼클릭')">버튼</button>
+    <button type="button" onclick="postMessage('skipToPrev')">이전</button>
+    <button type="button" onclick="postMessage('play')">재생</button>
+    <button type="button" onclick="postMessage('pause')">일시정지</button>
+    <button type="button" onclick="postMessage('stop')">정지</button>
+    <button type="button" onclick="postMessage('skipToNext')">다음</button>
+    <div>
+        <span>title : </span>
+        <span id="title"></span>
+    </div>
+    <div>
+        <span>artist : </span>
+        <span id="artist"></span>
+    </div>
+    <div>
+        <span>album : </span>
+        <span id="album"></span>
+    </div>
+    <div>
+        <span>genre : </span>
+        <span id="genre"></span>
+    </div>
+    <div>
+        <span>date : </span>
+        <span id="date"></span>
+    </div>
+    <div>
+        <span>artwork : </span>
+        <!-- <img id="d" src="" width="100px" height="100px"/> -->
+        <span id="artwork"></span>
+    </div>
+    <div>
+        <span>duration : </span>
+        <span id="duration"></span>
+    </div>
+</body>
+
+
+<script type="text/javascript">
+    console.log = function(arg) {
+        postMessage(arg)
+    }
+    function renderState(selector,state){
+        let element = document.getElementById(selector)
+        if(element){
+            element.textContent = state
+        }
+        return 1
+    }
+    function handleState(states){
+        var stateObj = JSON.parse(states)
+        for (const [key, val] of Object.entries(stateObj)){
+            renderState(key,val)
+        }
+
+    }
+    function handleProgress(progress){
+        renderState('progress',progress)
+    }
+</script>
+
+<script type="text/javascript">
+var num = 1;
+var playerState = {};
+const tracks = [
+{
+    url: 'https://file-examples.com/storage/fe02ad24406246a3cc690e0/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
+    title: 'Avaritia',
+    artist: 'deadmau5',
+    album: 'while(1<2)',
+    genre: 'Progressive House, Electro House',
+    date: '2014-05-20T07:00:00+00:00', // RFC 3339
+    artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
+    duration: 52 // Duration in seconds
+},
+{
+    url: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', // Load media from the network
+    title: 'Second',
+    artist: 'Secondary',
+    album: 'Secondwhile(1<2)',
+    genre: 'Second House, Second House',
+    date: '2022-01-10T01:00:00+00:00', // RFC 3339
+    artwork: 'https://www.pngall.com/wp-content/uploads/8/Sample.png', // Load artwork from the network
+    duration: 19 // Duration in seconds
+},
+]
+function addTrack(trackIndex){
+    postMessage('addTrack',tracks[trackIndex])
+}
+function postMessage(msg,data){
+    var message = {
+        message : msg,
+    }
+    if(data){
+        message.data=data
+    }
+    window.ReactNativeWebView.postMessage(JSON.stringify(message))
+
+}
+const messageHandler = (msg) =>{
+    alert('Message : ',msg);
+}
+
+</script>
+    
+</html>
