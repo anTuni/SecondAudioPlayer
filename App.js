@@ -34,12 +34,12 @@ class App extends React.Component {
     return (
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="Player" component={AudioPlayer} />
           <Stack.Screen
             name="Webview"
             component={Webview}
             options={{ title: 'Welcome' }}
           />
+          <Stack.Screen name="Player" component={AudioPlayer} />
         </Stack.Navigator> 
       </NavigationContainer>
     );
