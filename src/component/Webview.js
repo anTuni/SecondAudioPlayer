@@ -111,7 +111,10 @@ class Webview extends React.Component {
                 await TrackPlayer.skipToNext()
                 break;
             case 'addTrack':
-                this.addTrack(message.data)
+                await TrackPlayer.add(message.data)
+                break;
+            case 'seekTo':
+                await TrackPlayer.seekTo(Number(message.data.position))
                 break;
         
             default:
@@ -130,7 +133,7 @@ class Webview extends React.Component {
         }
     }
     addTrack = async(track)=>{
-        await TrackPlayer.add(track)
+       
     }
     trackPlayerInit = async() =>{
         await TrackPlayer.setupPlayer({})

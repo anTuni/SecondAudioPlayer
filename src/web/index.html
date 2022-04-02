@@ -84,6 +84,7 @@
         renderer('playerState',state)
     }
     function handleProgress(progress){
+        document.getElementById('position').setAttribute('max',progress.duration)
         renderer('progress',progress)
     }
 </script>
@@ -115,13 +116,13 @@ const tracks = [
 ]
 function seekTo(id){
     let position = document.getElementById(id);
-    alert(position.value)    
     postMessage('seekTo',{position:position.value})
 }
 function addTrack(trackIndex){
     postMessage('addTrack',tracks[trackIndex])
 }
 function postMessage(msg,data){
+
     var message = {
         message : msg,
     }
