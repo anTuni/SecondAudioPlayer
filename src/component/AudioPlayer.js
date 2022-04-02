@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -28,7 +28,7 @@ import TrackPlayer,
  } from 'react-native-track-player';
 const tracks = [
   {
-    url: 'https://file-examples.com/storage/fe07f859fd624073f9dbdc6/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
+    url: 'https://file-examples.com/storage/fe8533428d62462a7a11907/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
     title: 'Avaritia',
     artist: 'deadmau5',
     album: 'while(1<2)',
@@ -102,6 +102,7 @@ const PlayerInfo = () => {
   Event.PlaybackState => 재생 상태 바뀌었을 때(재생, 일시정지, 정지, 버퍼링 등)
   */
   useTrackPlayerEvents([Event.PlaybackTrackChanged,Event.PlaybackState], async event => {
+    console.log('useTrackPlayerEvents triggered')
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
         const track = await TrackPlayer.getTrack(event.nextTrack);
         const {title} = track || {};
@@ -114,7 +115,9 @@ const PlayerInfo = () => {
       console.log('PlayerInfo :: useTrackPlayerEvents ::PlayerState =\n',stateText(state))
     }
   });
-
+  useEffect(() => {
+    // console.log("useEffect::progress");
+  });
   return (
     <View style = {{justifyContent: 'center',alignItems: 'center',padding:10}}>
       <Text>Title : {trackTitle}</Text>
