@@ -15,7 +15,7 @@ import TrackPlayer,
  } from 'react-native-track-player';
 const tracks = [
 {
-    url: 'https://file-examples.com/storage/fe02ad24406246a3cc690e0/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
+    url: 'https://file-examples.com/storage/febe1e766b62478a092abc2/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
     title: 'Avaritia',
     artist: 'deadmau5',
     album: 'while(1<2)',
@@ -73,16 +73,12 @@ const stateText = (playerState)=>{
       if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
         const track = await TrackPlayer.getTrack(event.nextTrack);
         setTrackInfo(track);
-        props.runSingleFuncScript('handleState',track);
+        props.runSingleFuncScript('handlePlaybackTrackChanged',track);
         console.log('PlayerInfo :: PlaybackTrackChanged ::trackInfo =\n',track)
       }else if (event.type === Event.PlaybackState){
         const state = await TrackPlayer.getState();
         setPlayerState(stateText(state));
-        const track = await TrackPlayer.getCurrentTrack().then(async(index)=>{
-            const track = await TrackPlayer.getTrack(index);
-            console.log('PlayerInfo :: useTrackPlayerEvents ::track =\n',track)
-            props.runSingleFuncScript('handleState',track);
-        });
+        props.runSingleFuncScript('handlePlaybackState',stateText(state));
         console.log('PlayerInfo :: useTrackPlayerEvents ::PlayerState =\n',stateText(state))
       }
     });
@@ -180,7 +176,7 @@ class Webview extends React.Component {
                 <View style={{flex:1}}>
                      <WebView
                         ref={(r) => {this.webref = r}}
-                        source={{ uri: 'http://172.30.1.36' }}
+                        source={{ uri: 'http://192.168.0.5:8800' }}
                         style={{ marginTop: 20 }}
                         onMessage={(msg)=>this.messageHandler(msg)}
                     />
