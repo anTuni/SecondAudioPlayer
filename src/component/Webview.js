@@ -12,19 +12,8 @@ import TrackPlayer,
   State,
   Capability,
   useProgress,
+  RepeatMode,
  } from 'react-native-track-player';
-const tracks = [
-{
-    url: 'https://file-examples.com/storage/febe1e766b62478a092abc2/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
-    title: 'Avaritia',
-    artist: 'deadmau5',
-    album: 'while(1<2)',
-    genre: 'Progressive House, Electro House',
-    date: '2014-05-20T07:00:00+00:00', // RFC 3339
-    artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
-    duration: 52 // Duration in seconds
-},
-]
 const stateText = (playerState)=>{
     var text
     switch(playerState)
@@ -110,17 +99,42 @@ class Webview extends React.Component {
             case 'skipToNext':
                 await TrackPlayer.skipToNext()
                 break;
+            case 'skip':
+                await TrackPlayer.skip(message.data.index)
+                break;
             case 'addTrack':
                 await TrackPlayer.add(message.data)
+                this.handlePlayList();
                 break;
             case 'seekTo':
                 await TrackPlayer.seekTo(Number(message.data.position))
+                break;
+            case 'setVolume':
+                await TrackPlayer.setVolume(Number(message.data.volume)/100)
+                break;
+            case 'setRepeatMode':
+                this.setRepeatMode(message.data);
                 break;
         
             default:
                 this.injectJavascript('alert("hello from RN\'s messageHandler to Webview");')
                 break;
         }
+    }
+    setRepeatMode= async(mode) =>{
+      console.log('setRepeatMode :: ',mode)
+      switch (mode) {
+        case 1:
+          await TrackPlayer.setRepeatMode(RepeatMode.Track)
+          break;
+        case 2:
+          await TrackPlayer.setRepeatMode(RepeatMode.Queue)
+          break;
+        default:
+          await TrackPlayer.setRepeatMode(RepeatMode.Off)
+          break;
+      }
+      this.handleRepeatMode()
     }
     runSingleFuncScript(fucntionName,argument){
         var run = `${fucntionName}('${JSON.stringify(argument)}')`
@@ -132,10 +146,20 @@ class Webview extends React.Component {
             this.webref.injectJavaScript(run);
         }
     }
-    addTrack = async(track)=>{
-       
+    handleRepeatMode = async()=>{
+      const mode = await TrackPlayer.getRepeatMode();
+      console.log('handleRepeatMode :: mode ',mode)
+      this.runSingleFuncScript('handleRepeatMode',mode);
+    }
+    handlePlayList = async()=>{
+      const tracks = await TrackPlayer.getQueue();
+      console.log('handlePlayList :: track ',tracks)
+      this.runSingleFuncScript('handlePlayList',tracks);
     }
     trackPlayerInit = async() =>{
+        /* 
+        오디오 플레이어 초기화        
+        */
         await TrackPlayer.setupPlayer({})
 
         TrackPlayer.updateOptions({
@@ -163,15 +187,12 @@ class Webview extends React.Component {
             Capability.SkipToPrevious,
           ],
         });
-        await TrackPlayer.add(tracks).then(async()=>{
-            TrackPlayer.stop()
-        });
       }
       componentDidUpdate(){
           
       }
       componentDidMount() {
-        this.trackPlayerInit();
+        this.trackPlayerInit().then(()=>this.handleRepeatMode());
       }
     render() {
         return (
@@ -179,9 +200,11 @@ class Webview extends React.Component {
                 <View style={{flex:1}}>
                      <WebView
                         ref={(r) => {this.webref = r}}
-                        source={{ uri: 'http://192.168.0.5:8800' }}
+                        source={{ uri: 'http://172.30.1.52:8800' }}
                         style={{ marginTop: 20 }}
                         onMessage={(msg)=>this.messageHandler(msg)}
+                        cacheEnabled={false}
+                        cacheMode='LOAD_NO_CACHE'
                     />
                 </View>
                 <PlayerInfo runSingleFuncScript = {(func,arg)=>this.runSingleFuncScript(func,arg)}/>

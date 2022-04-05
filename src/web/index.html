@@ -7,7 +7,8 @@
     <title>AudioView</title>
 </head>
 <body>
-    <h1>호이</h1>
+    <h1>훠이</h1>
+    <div id="playlist"></div>
     <div id="progress"></div>
     
     <div id = playerState></div>
@@ -21,6 +22,10 @@
         <input type="number" id="position" min="0"/>
         <button type="button" onclick="seekTo('position')">초로 이동</button>
     </div>
+    <div>
+        <input type="number" id="volume" min="0" max="100"/>
+        <button type="button" onclick="setVolume('volume')">볼룸 조절</button>
+    </div>
     <button type="button" onclick="postMessage('버튼클릭')">버튼</button>
     <button type="button" onclick="postMessage('skipToPrev')">이전</button>
     <button type="button" onclick="postMessage('play')">재생</button>
@@ -28,6 +33,11 @@
     <button type="button" onclick="postMessage('stop')">정지</button>
     <button type="button" onclick="postMessage('skipToNext')">다음</button>
     <div>
+        <button type="button" onclick="postMessage('setRepeatMode',0)">반복중지</button>
+        <button type="button" onclick="postMessage('setRepeatMode',1)">한곡반복</button>
+        <button type="button" onclick="postMessage('setRepeatMode',2)">전체반복</button>
+
+    </div>
         <span>artwork : </span>
         <div>
             <img id="artwork_img" src="" width="100px" height="100px"/>
@@ -60,12 +70,8 @@
     </div>
 </body>
 
-
 <script type="text/javascript">
-    console.log = function(arg) {
-        postMessage(arg)
-    }
-    function renderer(selector,text){
+    function rendererText(selector,text){
         let element = document.getElementById(selector)
         if(element){
             element.textContent = text
@@ -74,18 +80,30 @@
     }
     function handlePlaybackTrackChanged(track){
         for (const [key, val] of Object.entries(JSON.parse(track))){
-            renderer(key,val)
+            rendererText(key,val)
             if(key =='artwork'){
                 document.getElementById('artwork_img').setAttribute('src',val)
             }
         }
     }
     function handlePlaybackState(state){
-        renderer('playerState',state)
+        rendererText('playerState',state)
     }
     function handleProgress(progress){
         document.getElementById('position').setAttribute('max',progress.duration)
-        renderer('progress',progress)
+        rendererText('progress',progress)
+    }
+    function handlePlayList(track){
+        rendererText('playlist',track)
+    }
+    function handleRepeatMode(mode){
+        /* mode
+        0:no repeat
+        1:track repeat
+        2:que repeat
+        */
+        console.log('handleRepeatMode : ', mode)                
+        
     }
 </script>
 
@@ -94,14 +112,14 @@ var num = 1;
 var playerState = {};
 const tracks = [
 {
-    url: 'https://file-examples.com/storage/febe1e766b62478a092abc2/2017/11/file_example_MP3_2MG.mp3', // Load media from the network
+    url: 'https://hjchurch.net/uploads/mp3/file_example_MP3_700KB.mp3', // Load media from the network
     title: 'Avaritia',
     artist: 'deadmau5',
     album: 'while(1<2)',
     genre: 'Progressive House, Electro House',
     date: '2014-05-20T07:00:00+00:00', // RFC 3339
     artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
-    duration: 52 // Duration in seconds
+    duration: 27 // Duration in seconds
 },
 {
     url: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', // Load media from the network
@@ -114,6 +132,13 @@ const tracks = [
     duration: 19 // Duration in seconds
 },
 ]
+function skip(index){
+    postMessage('skip',{index:index})
+}
+function setVolume(id){
+    let volume = document.getElementById(id);
+    postMessage('setVolume',{volume:volume.value})
+}
 function seekTo(id){
     let position = document.getElementById(id);
     postMessage('seekTo',{position:position.value})
@@ -135,7 +160,6 @@ function postMessage(msg,data){
 const messageHandler = (msg) =>{
     alert('Message : ',msg);
 }
-
 </script>
     
 </html>
