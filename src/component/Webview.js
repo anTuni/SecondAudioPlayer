@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -6,28 +6,19 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import {
-  TrackPlayerInstance,messageHandler
+    TrackPlayerComponent
 }
-from './TrackPlayerInstance'
+from './TrackPlayerComponent'
 
 class Webview extends React.Component {
     constructor(props) {
         super(props);
         this.trackPlayerRef = React.createRef();
     }
-
-    runSingleFuncScript(fucntionName,argument){
-        var run = `${fucntionName}('${JSON.stringify(argument)}')`
-        this.injectJavascript(run)
-    }
-    injectJavascript(script){
-        var run = script ? script : 'alert("hello from RN to Webview");'
-        if(this.webref){
-            this.webref.injectJavaScript(run);
-        }
+    messageHandler(msg){
+        this.trackPlayerRef.trackController(msg)
     }
     componentDidMount() {
-      trackPlayerInit((fucntionName,argument)=>{runSingleFuncScript(fucntionName,argument)});
     }
     render() {
         return (
@@ -35,15 +26,16 @@ class Webview extends React.Component {
                 <View style={{flex:1}}>
                      <WebView
                         ref={(r) => {this.webref = r}}
-                        source={{ uri: 'http://172.30.1.52:8800' }}
+                        source={{ uri: 'http://172.30.1.39:8800' }}
                         style={{ marginTop: 20 }}
-                        onMessage={(msg)=>this.trackPlayerRef.currentmessageHandler(msg)}
+                        onMessage={(msg)=>this.messageHandler(msg)}
                         cacheEnabled={false}
                         cacheMode='LOAD_NO_CACHE'
                     />
-                    <TrackPlayerInstance 
+                    <TrackPlayerComponent 
                       ref={(r) => {this.trackPlayerRef = r}}
-                      runSingleFuncScript={(fucntionName,argument)=>this.runSingleFuncScript(fucntionName,argument)}
+                      injectJavaScript={(script)=>this.webref.injectJavaScript(script)}
+                      logging={true}
                     />
                 </View>
             </SafeAreaView>
@@ -52,3 +44,11 @@ class Webview extends React.Component {
 }
 
 export default Webview
+
+/* 
+깃북에 문서 작업해보기
+문서만 보고 사용할 수 있도록
+깔끔하게 정리해보기
+
+디자인만 쉽게 적용할 수 있도록
+*/

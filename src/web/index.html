@@ -110,7 +110,7 @@
 <script type="text/javascript">
 var num = 1;
 var playerState = {};
-const tracks = [
+const que = [
 {
     url: 'https://hjchurch.net/uploads/mp3/file_example_MP3_700KB.mp3', // Load media from the network
     title: 'Avaritia',
@@ -133,32 +133,25 @@ const tracks = [
 },
 ]
 function skip(index){
-    postMessage('skip',{index:index})
+    callTrackController('skip',{index:index})
 }
 function setVolume(id){
     let volume = document.getElementById(id);
-    postMessage('setVolume',{volume:volume.value})
+    callTrackController('setVolume',{volume:volume.value})
 }
 function seekTo(id){
     let position = document.getElementById(id);
-    postMessage('seekTo',{position:position.value})
+    callTrackController('seekTo',{position:position.value})
 }
 function addTrack(trackIndex){
-    postMessage('addTrack',tracks[trackIndex])
+    callTrackController('addTrack',que[trackIndex])
 }
-function postMessage(msg,data){
-
-    var message = {
-        message : msg,
-    }
+function callTrackController(func,data){
+    var message = {func}
     if(data){
-        message.data=data
+        message.args=data
     }
     window.ReactNativeWebView.postMessage(JSON.stringify(message))
-
-}
-const messageHandler = (msg) =>{
-    alert('Message : ',msg);
 }
 </script>
     
