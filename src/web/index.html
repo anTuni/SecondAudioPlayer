@@ -7,16 +7,16 @@
     <title>AudioView</title>
 </head>
 <body>
-    <h1>훠이</h1>
+    <h1>웹뷰 & 오디오 백그라운드 </h1>
     <div id="playlist"></div>
     <div id="progress"></div>
     
     <div id = playerState></div>
     <div>
-        <button type="button" onclick="addTrack(0)">1번트랙추가</button>
+        <button type="button" onclick="addTrackMethod(0)">1번트랙추가</button>
     </div>
     <div>
-        <button type="button" onclick="addTrack(1)">2번트랙추가</button>
+        <button type="button" onclick="addTrackMethod(1)">2번트랙추가</button>
     </div>
     <div>
         <input type="number" id="position" min="0"/>
@@ -26,16 +26,15 @@
         <input type="number" id="volume" min="0" max="100"/>
         <button type="button" onclick="setVolume('volume')">볼룸 조절</button>
     </div>
-    <button type="button" onclick="postMessage('버튼클릭')">버튼</button>
-    <button type="button" onclick="postMessage('skipToPrev')">이전</button>
-    <button type="button" onclick="postMessage('play')">재생</button>
-    <button type="button" onclick="postMessage('pause')">일시정지</button>
-    <button type="button" onclick="postMessage('stop')">정지</button>
-    <button type="button" onclick="postMessage('skipToNext')">다음</button>
+    <button type="button" onclick="skipToPrev()">이전</button>
+    <button type="button" onclick="play()">재생</button>
+    <button type="button" onclick="pause()">일시정지</button>
+    <button type="button" onclick="stop()">정지</button>
+    <button type="button" onclick="skipToNext()">다음</button>
     <div>
-        <button type="button" onclick="postMessage('setRepeatMode',0)">반복중지</button>
-        <button type="button" onclick="postMessage('setRepeatMode',1)">한곡반복</button>
-        <button type="button" onclick="postMessage('setRepeatMode',2)">전체반복</button>
+        <button type="button" onclick="setRepeatMode(0)">반복중지</button>
+        <button type="button" onclick="setRepeatMode(1)">한곡반복</button>
+        <button type="button" onclick="setRepeatMode(2)">전체반복</button>
 
     </div>
         <span>artwork : </span>
@@ -70,7 +69,31 @@
     </div>
 </body>
 
+<script type="text/javascript" src="./trackplayer.js"></script>
 <script type="text/javascript">
+
+    const collection = [
+        {
+            url: 'https://hjchurch.net/uploads/mp3/file_example_MP3_700KB.mp3', // Load media from the network
+            title: 'Avaritia',
+            artist: 'deadmau5',
+            album: 'while(1<2)',
+            genre: 'Progressive House, Electro House',
+            date: '2014-05-20T07:00:00+00:00', // RFC 3339
+            artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
+            duration: 27 // Duration in seconds
+        },
+        {
+            url: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', // Load media from the network
+            title: 'Second',
+            artist: 'Secondary',
+            album: 'Secondwhile(1<2)',
+            genre: 'Second House, Second House',
+            date: '2022-01-10T01:00:00+00:00', // RFC 3339
+            artwork: 'https://www.pngall.com/wp-content/uploads/8/Sample.png', // Load artwork from the network
+            duration: 19 // Duration in seconds
+        },
+    ]
     function rendererText(selector,text){
         let element = document.getElementById(selector)
         if(element){
@@ -78,81 +101,62 @@
         }
         return 1
     }
-    function handlePlaybackTrackChanged(track){
+
+    const HJRNTrackPlayer = new ReactNativeTrackPlayer();
+    window.ReactNativeWebView.addTrackEventListener((eventType,params)=>HJRNTrackPlayer.trackEventTrigger(eventType,params))
+
+    function addTrackMethod(index){
+        HJRNTrackPlayer.addTrack(collection[index])
+    }
+    HJRNTrackPlayer.addTrackEventListener('progress',(progress)=>{
+        rendererText('progress',progress)
+    })
+    HJRNTrackPlayer.addTrackEventListener('PlaybackState',(state)=>{
+        rendererText('playerState',state)
+    })
+    HJRNTrackPlayer.addTrackEventListener('PlayerTrackChanged',(track)=>{
         for (const [key, val] of Object.entries(JSON.parse(track))){
             rendererText(key,val)
             if(key =='artwork'){
                 document.getElementById('artwork_img').setAttribute('src',val)
             }
         }
-    }
-    function handlePlaybackState(state){
-        rendererText('playerState',state)
-    }
-    function handleProgress(progress){
-        document.getElementById('position').setAttribute('max',progress.duration)
-        rendererText('progress',progress)
-    }
-    function handlePlayList(track){
-        rendererText('playlist',track)
-    }
-    function handleRepeatMode(mode){
-        /* mode
-        0:no repeat
-        1:track repeat
-        2:que repeat
-        */
-        console.log('handleRepeatMode : ', mode)                
-        
-    }
-</script>
-
-<script type="text/javascript">
-var num = 1;
-var playerState = {};
-const que = [
-{
-    url: 'https://hjchurch.net/uploads/mp3/file_example_MP3_700KB.mp3', // Load media from the network
-    title: 'Avaritia',
-    artist: 'deadmau5',
-    album: 'while(1<2)',
-    genre: 'Progressive House, Electro House',
-    date: '2014-05-20T07:00:00+00:00', // RFC 3339
-    artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
-    duration: 27 // Duration in seconds
-},
-{
-    url: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', // Load media from the network
-    title: 'Second',
-    artist: 'Secondary',
-    album: 'Secondwhile(1<2)',
-    genre: 'Second House, Second House',
-    date: '2022-01-10T01:00:00+00:00', // RFC 3339
-    artwork: 'https://www.pngall.com/wp-content/uploads/8/Sample.png', // Load artwork from the network
-    duration: 19 // Duration in seconds
-},
-]
-function skip(index){
-    callTrackController('skip',{index:index})
-}
-function setVolume(id){
-    let volume = document.getElementById(id);
-    callTrackController('setVolume',{volume:volume.value})
-}
-function seekTo(id){
-    let position = document.getElementById(id);
-    callTrackController('seekTo',{position:position.value})
-}
-function addTrack(trackIndex){
-    callTrackController('addTrack',que[trackIndex])
-}
-function callTrackController(func,data){
-    var message = {func}
-    if(data){
-        message.args=data
-    }
-    window.ReactNativeWebView.postMessage(JSON.stringify(message))
-}
-</script>
+    })
+    HJRNTrackPlayer.addTrackEventListener('PlayList',(tracks)=>{
+        rendererText('playlist',tracks)
+    })
+    HJRNTrackPlayer.addTrackEventListener('handleRepeatMode',(track)=>{
+        alert('handleRepeatMode')
+    })
     
+
+    function skipToPrev(){
+        HJRNTrackPlayer.skipToPrev()
+    }
+    function play(){
+        HJRNTrackPlayer.play()
+    }
+    function pause(){
+        HJRNTrackPlayer.pause()
+    }
+    function stop(){
+        HJRNTrackPlayer.stop()
+    }
+    function skipToNext(){
+        HJRNTrackPlayer.skipToNext()
+    }
+    function setRepeatMode(mode){
+        HJRNTrackPlayer.setRepeatMode(mode)
+    }
+    function seekTo(){
+        let seconds = document.getElementById('position')
+        alert(seconds.value)
+        HJRNTrackPlayer.seekTo(seconds.value)
+    }
+    function setVolume(){
+        let vol = document.getElementById('volume')
+        alert(vol.value)
+        HJRNTrackPlayer.setVolume(vol.value)
+    }
+</script>
 </html>
