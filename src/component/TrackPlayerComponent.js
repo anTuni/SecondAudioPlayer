@@ -51,13 +51,13 @@ const PlayerState = (props) =>{
         props.log('PlayerState :: useTrackPlayerEvents triggered')
         if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
             const track = await TrackPlayer.getTrack(event.nextTrack);
-            props.runSingleFuncScript('handlePlaybackTrackChanged',track);
+            props.trackEventTrigger('PlayerTrackChanged',track);
 
             props.log('PlayerState :: useTrackPlayerEvents :: Event.PlaybackTrackChanged ::getTrack =',track)
 
         }else if (event.type === Event.PlaybackState){
             const state = await TrackPlayer.getState();
-            props.runSingleFuncScript('handlePlaybackState',stateText(state));
+            props.trackEventTrigger('PlaybackState',stateText(state));
 
             props.log('PlayerState :: useTrackPlayerEvents :: Event.PlaybackState ::getState =',stateText(state))
         }
@@ -65,7 +65,7 @@ const PlayerState = (props) =>{
     const progress = useProgress();
 
     useEffect(() => {
-        props.runSingleFuncScript('handleProgress',progress);
+        props.trackEventTrigger('progress',progress);
         props.log('PlayerState :: handleProgress :: progress =',progress)
     })
     return (<View></View>);
@@ -73,16 +73,26 @@ const PlayerState = (props) =>{
 export class TrackPlayerComponent extends React.Component{
     constructor(props){
         super(props);
-        this.logging('this.logging')
     }
     logging(...args){
         (this.props.logging) && console.log(...args);
+    }
+    trackEventTrigger(eventType,params){
+        var script = `window.ReactNativeWebView.trackEventTrigger('${eventType}','${JSON.stringify(params)}')`
+        this.logging('TrackPlayerComponent :: trackEventTrigger :: script= ',script)
+        if(typeof this.props.injectJavaScript == 'function'){
+            this.props.injectJavaScript(script)
+        }else{
+            this.logging('TrackPlayerComponent :: trackEventTrigger :: injectJavaScript is not a function ')
+        }
     }
     runSingleFuncScript(fucntionName,argument){
         var script = `${fucntionName}('${JSON.stringify(argument)}')`
         this.logging('TrackPlayerComponent :: runSingleFuncScript :: script= ',script)
         if(typeof this.props.injectJavaScript == 'function'){
             this.props.injectJavaScript(script)
+        }else{
+            this.logging('TrackPlayerComponent :: runSingleFuncScript :: injectJavaScript is not a function ')
         }
     }
     async trackController(msg){
@@ -95,9 +105,9 @@ export class TrackPlayerComponent extends React.Component{
         }  
          */
         let obj = JSON.parse(msg.nativeEvent.data)
-        this.logging('TrackPlayerComponent :: trackController :: message =',obj.message)
+        this.logging('TrackPlayerComponent :: trackController :: func =',obj.func)
         this.logging('TrackPlayerComponent :: trackController :: data =',obj.data)
-        switch (obj.message) {
+        switch (obj.func) {
             case 'skipToPrev':
                 await TrackPlayer.skipToPrevious()
                 break;
@@ -148,17 +158,17 @@ export class TrackPlayerComponent extends React.Component{
             await TrackPlayer.setRepeatMode(RepeatMode.Off)
             break;
         }
-        handleRepeatMode()
+        this.handleRepeatMode()
     }
     async handleRepeatMode(){
         const mode = await TrackPlayer.getRepeatMode();
-        this.logging('TrackPlayerComponent :: handleRepeatMode :: mode ',mode)
-        this.runSingleFuncScript('handleRepeatMode',mode);
+        this.logging('TrackPlayerComponent :: RepeatMode :: mode ',mode)
+        this.trackEventTrigger('RepeatMode',mode);
     }
     async handlePlayList(){
         const tracks = await TrackPlayer.getQueue();
-        this.logging('TrackPlayerComponent :: handlePlayList :: track ',tracks)
-        this.runSingleFuncScript('handlePlayList',tracks);
+        this.logging('TrackPlayerComponent :: PlayList :: track ',tracks)
+        this.trackEventTrigger('PlayList',tracks);
     }
     async trackPlayerInit(){
             /* 
@@ -205,6 +215,7 @@ export class TrackPlayerComponent extends React.Component{
         return (
             <PlayerState 
                 runSingleFuncScript={(fucntionName,argument)=>this.runSingleFuncScript(fucntionName,argument)}
+                trackEventTrigger={(eventType,params)=>this.trackEventTrigger(eventType,params)}
                 log = {(...args)=>this.logging(...args)}
             />
         )
