@@ -26,7 +26,7 @@ class Webview extends React.Component {
                 <View style={{flex:1}}>
                      <WebView
                         ref={(r) => {this.webref = r}}
-                        source={{ uri: 'http://172.30.1.39:8800' }}
+                        source={{ uri: 'http://192.168.137.1:8800' }}
                         style={{ marginTop: 20 }}
                         onMessage={(msg)=>this.messageHandler(msg)}
                         cacheEnabled={false}
