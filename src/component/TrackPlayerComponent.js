@@ -77,6 +77,10 @@ export class TrackPlayerComponent extends React.Component{
     logging(...args){
         (this.props.logging) && console.log(...args);
     }
+    errorHandler(error,message){
+        console.log(`${message}\n${error}`);
+        this.trackEventTrigger('Error', error)
+    }
     trackEventTrigger(eventType,params){
         var script = `window.ReactNativeWebView.trackEventTrigger('${eventType}','${JSON.stringify(params)}')`
         this.logging('TrackPlayerComponent :: trackEventTrigger :: script= ',script)
@@ -105,11 +109,13 @@ export class TrackPlayerComponent extends React.Component{
         }  
          */
         let obj = JSON.parse(msg.nativeEvent.data)
-        this.logging('TrackPlayerComponent :: trackController :: func =',obj.func)
-        this.logging('TrackPlayerComponent :: trackController :: data =',obj.data)
-        switch (obj.func) {
+        this.logging('TrackPlayerComponent :: trackController :: obj =',obj)
+       switch (obj.func) {
             case 'skipToPrev':
-                await TrackPlayer.skipToPrevious()
+                await TrackPlayer.skipToPrevious().then()
+                .catch(err=>{
+                    this.errorHandler(err,'TrackPlayer.skipToPrevious()')
+                })
                 break;
             case 'play':
                 TrackPlayer.play()
@@ -121,20 +127,38 @@ export class TrackPlayerComponent extends React.Component{
                 TrackPlayer.stop()
                 break;
             case 'skipToNext':
-                await TrackPlayer.skipToNext()
+                await TrackPlayer.skipToNext().then()
+                .catch(err=>{
+                    this.errorHandler(err,'TrackPlayer.skipToNext()')
+                })
                 break;
             case 'skip':
-                await TrackPlayer.skip(obj.data.index)
+                await TrackPlayer.skip(obj.data.index).then()
+                .catch(err=>{
+                    this.errorHandler(err,'TrackPlayer.skip()')
+                })
                 break;
             case 'addTrack':
-                await TrackPlayer.add(obj.data)
+                await TrackPlayer.add(obj.data).then()
+                .catch(err=>{
+                    this.errorHandler(err,'TrackPlayer.add()')
+                })
                 this.handlePlayList();
                 break;
+            case 'remove':
+                this.removeFromQueue(obj.data);
+                break;
             case 'seekTo':
-                await TrackPlayer.seekTo(Number(obj.data.position))
+                await TrackPlayer.seekTo(Number(obj.data.position)).then()
+                .catch(err=>{
+                    this.errorHandler(err,'TrackPlayer.seekTo()')
+                })
                 break;
             case 'setVolume':
-                await TrackPlayer.setVolume(Number(obj.data.volume)/100)
+                await TrackPlayer.setVolume(Number(obj.data.volume)/100).then()
+                .catch(err=>{
+                    this.errorHandler(err,'TrackPlayer.setVolume()')
+                })
                 break;
             case 'setRepeatMode':
                 this.setRepeatMode(obj.data);
@@ -145,29 +169,58 @@ export class TrackPlayerComponent extends React.Component{
                 break;
         }
     } 
+    async removeFromQueue(indexs) {
+        if(){
+            // 현재 트랙이 포함 됐을 때 남은 트랙으로 이동후 현재 트랙도 삭제
+            // 남은 트랙 없을 땐 큐 초기화
+            
+        }
+        await TrackPlayer.remove(indexs).then((result) =>{
+            console.log("TrackPlayer.remove :: ",indexs,typeof indexs);
+        })
+        .catch(err=>{
+            this.errorHandler(err,'TrackPlayer.remove()')
+        })
+        this.handlePlayList();
+    }
     async setRepeatMode(mode){
         this.logging('TrackPlayerComponent :: setRepeatMode :: mode=',mode)
         switch (mode) {
           case 1:
-            await TrackPlayer.setRepeatMode(RepeatMode.Track)
+            await TrackPlayer.setRepeatMode(RepeatMode.Track).then()
+            .catch(err=>{
+                this.errorHandler(err,`TrackPlayer.setRepeatMode(${RepeatMode.Track})`)
+            })
             break;
           case 2:
-            await TrackPlayer.setRepeatMode(RepeatMode.Queue)
+            await TrackPlayer.setRepeatMode(RepeatMode.Queue).then()
+            .catch(err=>{
+                this.errorHandler(err,`TrackPlayer.setRepeatMode(${RepeatMode.Queue})`)
+            })
             break;
           default:
-            await TrackPlayer.setRepeatMode(RepeatMode.Off)
+            await TrackPlayer.setRepeatMode(RepeatMode.Off).then()
+            .catch(err=>{
+                this.errorHandler(err,`TrackPlayer.setRepeatMode(${RepeatMode.Off})`)
+            })
             break;
         }
         this.handleRepeatMode()
     }
     async handleRepeatMode(){
-        const mode = await TrackPlayer.getRepeatMode();
+        const mode = await TrackPlayer.getRepeatMode().then()
+            .catch(err=>{
+                this.errorHandler(err,`TrackPlayer.getRepeatMode()`)
+            });
         this.logging('TrackPlayerComponent :: RepeatMode :: mode ',mode)
         this.trackEventTrigger('RepeatMode',mode);
     }
     async handlePlayList(){
-        const tracks = await TrackPlayer.getQueue();
-        this.logging('TrackPlayerComponent :: PlayList :: track ',tracks)
+        const tracks = await TrackPlayer.getQueue().then()
+            .catch(err=>{
+                this.errorHandler(err,`TrackPlayer.getQueue()`)
+            });
+        this.logging('TrackPlayerComponent :: handlePlayList :: track ',tracks)
         this.trackEventTrigger('PlayList',tracks);
     }
     async trackPlayerInit(){

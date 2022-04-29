@@ -12,13 +12,14 @@ class ReactNativeTrackPlayer{
         PlayerTrackChanged: new Array(),
         PlayList: new Array(),
         RepeatMode: new Array(),
+        Error: new Array(),
     };
 
     constructor(){
     }
     callTrackController(func,data){
         var message = {func}
-        if(data){
+        if(typeof data !='undefined'){
             message.data=data
         }
         window.ReactNativeWebView.postMessage(JSON.stringify(message))
@@ -50,6 +51,11 @@ class ReactNativeTrackPlayer{
                     (typeof item == "function") && item(params);
                 })
             break;
+            case 'Error':
+                this.trackEventListeners.Error.forEach(function (item) {
+                    (typeof item == "function") && item(params);
+                })
+            break;
             default:
             break;
         }
@@ -71,6 +77,9 @@ class ReactNativeTrackPlayer{
             case 'RepeatMode':
                 this.trackEventListeners.RepeatMode.push(listener);
             break;
+            case 'Error':
+                this.trackEventListeners.Error.push(listener);
+            break;
             default:
                 return false;
             break;
@@ -86,6 +95,9 @@ class ReactNativeTrackPlayer{
         this.callTrackController('addTrack',track)
         this.queue.push(track)
         return this.queue
+    }
+    remove(index){
+        this.callTrackController('remove',index)
     }
     skipToPrev(){
         this.callTrackController('skipToPrev')

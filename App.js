@@ -37,7 +37,7 @@ class App extends React.Component {
           <Stack.Screen
             name="Webview"
             component={Webview}
-            options={{ title: 'Welcome' }}
+            options={{ title: 'Track Player' }}
           />
           <Stack.Screen name="Player" component={AudioPlayer} />
         </Stack.Navigator> 

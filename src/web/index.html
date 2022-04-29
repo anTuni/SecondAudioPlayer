@@ -7,7 +7,6 @@
     <title>AudioView</title>
 </head>
 <body>
-    <h1>웹뷰 & 오디오 백그라운드 </h1>
     <div id="playlist"></div>
     <div id="progress"></div>
     
@@ -21,6 +20,9 @@
     <div>
         <input type="number" id="position" min="0"/>
         <button type="button" onclick="seekTo('position')">초로 이동</button>
+    </div>
+    <div>
+        <button type="button" onclick="remove(0)">트랙 삭제</button>
     </div>
     <div>
         <input type="number" id="volume" min="0" max="100"/>
@@ -108,6 +110,9 @@
     function addTrackMethod(index){
         HJRNTrackPlayer.addTrack(collection[index])
     }
+    HJRNTrackPlayer.addTrackEventListener('Error',(error)=>{
+        alert(error)
+    })
     HJRNTrackPlayer.addTrackEventListener('progress',(progress)=>{
         rendererText('progress',progress)
     })
@@ -129,7 +134,9 @@
         alert('handleRepeatMode')
     })
     
-
+    function remove(index){
+        HJRNTrackPlayer.remove(Number(1))
+    }
     function skipToPrev(){
         HJRNTrackPlayer.skipToPrev()
     }
