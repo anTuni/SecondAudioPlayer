@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioView</title>
+</head>
+<body>
+    <h1>에에</h1>
+    <div id="playlist"></div>
+    <div id="progress"></div>
+    
+    <div id = playerState></div>
+    <div>
+        <button type="button" onclick="openApp()">앱으로 보기</button>
+        <button type="button" onclick="openApp()">앱으로 다운</button>
+    </div>
+</body>
+<script type="text/javascript">
+    /**
+ * Determine the mobile operating system.
+ * This function returns one of 'iOS', 'Android', 'Windows Phone', or 'unknown'.
+ *
+ * @returns {String}
+ */
+function getMobileOperatingSystem() {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Windows Phone must come first because its UA also contains "Android"
+    if (/windows phone/i.test(userAgent)) {
+        return "Windows Phone";
+    }
+
+    if (/android/i.test(userAgent)) {
+        return "Android";
+    }
+
+    // iOS detection from: http://stackoverflow.com/a/9039885/177710
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        return "iOS";
+    }
+
+    return "unknown";
+}
+function openApp(){
+    alert(getMobileOperatingSystem() == 'Android');
+    setTimeout(function(){
+        let store = getMobileOperatingSystem() == 'Android' ? "store://play.google.com/store/apps/details?id=com.cheonwonchurch" : '';
+        location.href = store;
+    },1000)
+    location.href = "hjcommunity://hjchurch.net/worship_detail/146"
+}
+</script>
+
+</html>

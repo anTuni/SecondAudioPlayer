@@ -33,7 +33,9 @@ class App extends React.Component {
   render(){
     return (
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+        screenOptions={{headerShown:false}}
+        >
           <Stack.Screen
             name="Webview"
             component={Webview}

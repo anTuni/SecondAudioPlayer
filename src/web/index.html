@@ -5,8 +5,56 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AudioView</title>
+    <script src="https://kit.fontawesome.com/690f74afe5.js" crossorigin="anonymous"></script>
+    <style>
+       header {
+           width: 100%;
+           height: 70px;
+           background-color: #152249;
+       }
+    </style>
 </head>
 <body>
+    <header>
+        <div style="display: flex;justify-content:center;align-items:center;">
+            <img src="https://hjchurch.net/assets/images/region_0_char.png" alt="Logo" style="padding-top:5px; height: 50px;">
+        </div>
+    </header>
+    <div>전체 재생목록(songList)</div>
+    <ol id="songList">
+        <li onclick="addTrackMethod(0)">
+            청심
+        </li>
+        <li onclick="addTrackMethod(1)">
+            상속
+        </li>
+        <li onclick="addTrackMethod(2)">
+            Heroes
+        </li>
+    </ol>
+    <div style="padding: 10px; display: flex; border: solid 1px black;">
+        <div style="width: 30%; min-width: 180px; display: flex;">
+			<div>
+				<img id="songImage" src="https://hjchurch.net/assets/audiosample/defualt_image.png" alt="" style="min-width: 100px; width: 100px; min-height:100px; height:100px; background-color: lightblue;">
+			</div>
+			<div style="margin: 0 14px;">
+				<div id="songTitle" style="font-size: 15px; font-weight: 600;">재생할 곡을 선택해주세요</div>
+				<div id="songArtist" style="font-size: 12px; font-weight: 400;"></div>
+			</div>
+        </div>
+		<div style="display: flex; justify-content: center; flex-flow: column; width: 40%; max-width: 722px;">
+			<div style="display: flex; justify-content: center; flex-flow: row nowrap; gap: 10px; margin-bottom: 10px;">
+				<button id="pre-button" onclick="skipToPrev()"><i class="fas fa-backward"></i></button>
+				<button id="play-button" onclick="play()"><i class="fas fa-play"></i></button>
+				<button id="next-button" onclick="skipToNext()"><i class="fas fa-forward"></i></button>
+			</div>
+			<div style="display: flex; justify-content: center; flex-flow: row nowrap; gap: 5px; width: 100%;">
+				<span id="current">0:00</span>
+				<input type="range" id="seekbar" value="0" style="padding: 0; width: 100%;">
+				<span id="total">0:00</span>
+			</div>
+		</div>
+    <!-- </div>
     <div id="playlist"></div>
     <div id="progress"></div>
     
@@ -16,6 +64,9 @@
     </div>
     <div>
         <button type="button" onclick="addTrackMethod(1)">2번트랙추가</button>
+    </div>
+    <div>
+        <button type="button" onclick="addTrackMethod(2)">3번트랙추가</button>
     </div>
     <div>
         <input type="number" id="position" min="0"/>
@@ -68,7 +119,7 @@
     <div>
         <span>duration : </span>
         <span id="duration"></span>
-    </div>
+    </div> -->
 </body>
 
 <script type="text/javascript" src="./trackplayer.js"></script>
@@ -76,24 +127,34 @@
 
     const collection = [
         {
-            url: 'https://hjchurch.net/uploads/mp3/file_example_MP3_700KB.mp3', // Load media from the network
-            title: 'Avaritia',
-            artist: 'deadmau5',
+            url: "https://hjchurch.net/assets/audiosample/test001.mp3", // Load media from the network
+            title: '청심',
+            artist: '청심밴드',
             album: 'while(1<2)',
             genre: 'Progressive House, Electro House',
             date: '2014-05-20T07:00:00+00:00', // RFC 3339
-            artwork: 'https://www.fnordware.com/superpng/pnggrad8rgb.png', // Load artwork from the network
-            duration: 27 // Duration in seconds
+            artwork: 'https://hjchurch.net/assets/audiosample/image01.jpg', // Load artwork from the network
+            duration: 256 // Duration in seconds
         },
         {
-            url: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', // Load media from the network
-            title: 'Second',
-            artist: 'Secondary',
+            url: "https://hjchurch.net/assets/audiosample/test003.mp3", // Load media from the network
+            title: '상속',
+            artist: '신명',
             album: 'Secondwhile(1<2)',
             genre: 'Second House, Second House',
             date: '2022-01-10T01:00:00+00:00', // RFC 3339
-            artwork: 'https://www.pngall.com/wp-content/uploads/8/Sample.png', // Load artwork from the network
-            duration: 19 // Duration in seconds
+            artwork: 'https://hjchurch.net/assets/audiosample/image02.jpg', // Load artwork from the network
+            duration: 265 // Duration in seconds
+        },
+        {
+            url: "https://hjchurch.net/assets/audiosample/test004.mp3", // Load media from the network
+            title: 'Heroes',
+            artist: '트루스타',
+            album: 'Secondwhile(1<2)',
+            genre: 'Second House, Second House',
+            date: '2022-01-10T01:00:00+00:00', // RFC 3339
+            artwork: 'https://hjchurch.net/assets/audiosample/image03.png', // Load artwork from the network
+            duration: 235 // Duration in seconds
         },
     ]
     function rendererText(selector,text){
@@ -120,7 +181,15 @@
         rendererText('playerState',state)
     })
     HJRNTrackPlayer.addTrackEventListener('PlayerTrackChanged',(track)=>{
-        for (const [key, val] of Object.entries(JSON.parse(track))){
+        const song = JSON.parse(track)
+        var songTitle = document.getElementById('songTitle')
+        var songArtist = document.getElementById('songArtist')
+
+        songTitle.innerText = song.title 
+        songArtist.innerText = song.artist 
+        document.getElementById('songImage').setAttribute('src',song.artwork)
+
+        for (const [key, val] of Object.entries(song)){
             rendererText(key,val)
             if(key =='artwork'){
                 document.getElementById('artwork_img').setAttribute('src',val)

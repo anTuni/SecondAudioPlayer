@@ -18,7 +18,7 @@ class ReactNativeTrackPlayer{
     constructor(){
     }
     callTrackController(func,data){
-        var message = {func}
+        var message = {func,message:'trackPlayer'}
         if(typeof data !='undefined'){
             message.data=data
         }
@@ -129,7 +129,11 @@ class ReactNativeTrackPlayer{
 
 window.ReactNativeWebView.trackEventListeners = new Array()
 window.ReactNativeWebView.addTrackEventListener = function(func){
-    window.ReactNativeWebView.trackEventListeners.push(func)
+    if(typeof func == "function"){
+        window.ReactNativeWebView.trackEventListeners.push(func)
+    }else{
+        console.log('window.ReactNativeWebView.addTrackEventListener\'s first Argument should be a function')
+    }
 }
 window.ReactNativeWebView.trackEventTrigger= (eventType,params)=>{
     window.ReactNativeWebView.trackEventListeners.forEach(function (item) {

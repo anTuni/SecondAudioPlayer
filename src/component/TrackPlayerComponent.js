@@ -170,7 +170,7 @@ export class TrackPlayerComponent extends React.Component{
         }
     } 
     async removeFromQueue(indexs) {
-        if(){
+        if(false){
             // 현재 트랙이 포함 됐을 때 남은 트랙으로 이동후 현재 트랙도 삭제
             // 남은 트랙 없을 땐 큐 초기화
             
