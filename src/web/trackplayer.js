@@ -117,6 +117,9 @@ class ReactNativeTrackPlayer{
     skipToNext(){
         this.callTrackController('skipToNext')
     }
+    syncCurrentPlayList(){
+        this.callTrackController('syncCurrentPlayList')
+    }
     setRepeatMode(mode){
          /* mode
         0:no repeat
