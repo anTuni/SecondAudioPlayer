@@ -53,9 +53,10 @@
 				<input type="range" id="seekbar" value="0" style="padding: 0; width: 100%;">
 				<span id="total">0:00</span>
 			</div>
-		</div>
+				<button id="next-button" onclick="syncCurrentPlayList()"><i class="fas fa-forward"></i></button>
+            </div>
+            <div id="playlist"></div>
     <!-- </div>
-    <div id="playlist"></div>
     <div id="progress"></div>
     
     <div id = playerState></div>
@@ -220,6 +221,9 @@
     }
     function skipToNext(){
         HJRNTrackPlayer.skipToNext()
+    }
+    function syncCurrentPlayList(){
+        HJRNTrackPlayer.syncCurrentPlayList()
     }
     function setRepeatMode(mode){
         HJRNTrackPlayer.setRepeatMode(mode)
